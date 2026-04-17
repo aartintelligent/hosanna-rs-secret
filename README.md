@@ -2,6 +2,8 @@
 
 [![Crates.io](https://img.shields.io/crates/v/hosanna-rs-secret.svg)](https://crates.io/crates/hosanna-rs-secret)
 [![Docs.rs](https://docs.rs/hosanna-rs-secret/badge.svg)](https://docs.rs/hosanna-rs-secret)
+[![CI](https://github.com/aartintelligent/hosanna-rs-secret/actions/workflows/ci.yml/badge.svg)](https://github.com/aartintelligent/hosanna-rs-secret/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/aartintelligent/hosanna-rs-secret/graph/badge.svg)](https://codecov.io/gh/aartintelligent/hosanna-rs-secret)
 [![MSRV](https://img.shields.io/badge/MSRV-1.85-blue.svg)](#minimum-supported-rust-version)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 

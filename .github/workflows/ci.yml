@@ -72,3 +72,27 @@ jobs:
         with:
           key: ${{ matrix.toolchain }}-${{ matrix.features.name }}
       - run: cargo test --locked ${{ matrix.features.flags }}
+
+  coverage:
+    name: coverage
+    runs-on: ubuntu-latest
+    # Coverage is informational — a broken upload must not block the whole
+    # pipeline (e.g. Codecov outage, missing token on a fork PR).
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+      - uses: Swatinem/rust-cache@v2
+      # Source-based coverage via LLVM. `taiki-e/install-action` pulls the
+      # pre-built `cargo-llvm-cov` binary — no `cargo install` compile wait.
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      - name: Generate lcov report
+        run: cargo llvm-cov --all-features --workspace --locked --lcov --output-path lcov.info
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: lcov.info
+          fail_ci_if_error: false
