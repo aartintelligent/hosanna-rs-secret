@@ -1,6 +1,105 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  hosanna-rs-secret — in-memory secret types for Rust
+#  Rust counterpart to Pydantic's `SecretStr` / `SecretBytes`.
+# ─────────────────────────────────────────────────────────────────────────────
+
 [package]
-name = "hosanna-rs-secret"
-version = "0.1.0"
-edition = "2024"
+name         = "hosanna-rs-secret"
+version      = "0.1.0"
+edition      = "2024"
+rust-version = "1.85"
+authors      = ["Aurelien Andre"]
+license      = "Apache-2.0"
+description  = "Safe in-memory secret types (SecretString, SecretBytes) with redacted Debug/Display, zeroisation on drop, and constant-time equality."
+readme       = "README.md"
+repository   = "https://github.com/aartintelligent/hosanna-rs-secret"
+homepage     = "https://github.com/aartintelligent/hosanna-rs-secret"
+documentation = "https://docs.rs/hosanna-rs-secret"
+keywords     = ["secret", "security", "zeroize", "redacted", "credentials"]
+categories   = ["cryptography", "data-structures", "no-std::no-alloc"]
+
+# Only ship what downstream users need: source, license, readme, changelog.
+include = [
+    "src/**/*.rs",
+    "Cargo.toml",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md",
+]
+
+# ─── Runtime dependencies ────────────────────────────────────────────────────
 
 [dependencies]
+# Securely wipes backing buffers on drop — the cornerstone of the crate.
+zeroize   = { version = "1", features = ["derive", "alloc"] }
+
+# Optional: deserialise-only integration with the serde ecosystem.
+serde     = { version = "1", features = ["derive"], optional = true }
+
+# Ergonomic, boilerplate-free error types for `SecretError`.
+thiserror = "2"
+
+# ─── Test-only dependencies ──────────────────────────────────────────────────
+
+[dev-dependencies]
+# Drives the JSON round-trip tests gated by the `serde` feature.
+serde_json = "1"
+
+# Installs git hooks from `.cargo-husky/hooks/` into `.git/hooks/` the first
+# time a contributor runs `cargo test`. Kept Rust-native: no Python, no npm.
+cargo-husky = { version = "1", default-features = false, features = ["user-hooks"] }
+
+# ─── Cargo features ──────────────────────────────────────────────────────────
+
+[features]
+# Enabled by default: most downstream crates reach for serde immediately.
+# Disable with `default-features = false` for a leaner dependency tree.
+default = ["serde"]
+serde   = ["dep:serde"]
+
+# ─── Lints (codified at the crate level, honoured by every tool) ────────────
+#
+# Stable since Rust 1.74. Contributors get the same signal from
+# `cargo check` in their editor that the CI would give them, without
+# having to remember to pass CLI flags.
+
+[lints.rust]
+# Belt-and-braces with `#![forbid(unsafe_code)]` in `src/lib.rs`:
+# duplicating the forbid here means the bar survives a refactor that
+# accidentally removes the inner attribute.
+unsafe_code       = "forbid"
+# Every public item must be documented — the crate is small enough that
+# "I'll document it later" has no excuse.
+missing_docs      = "warn"
+# Anything reachable outside its module should either be `pub(crate)` or
+# genuinely public. Catches accidental `pub` leaks.
+unreachable_pub   = "warn"
+# Modern edition idioms (dyn traits, `Self` in impls, etc.).
+rust_2018_idioms  = { level = "warn", priority = -1 }
+
+[lints.rustdoc]
+# Broken doc links turn into deploy-time surprises; fail fast locally.
+broken_intra_doc_links  = "deny"
+# This is the lint that caught the `constant_time_eq` issue earlier.
+private_intra_doc_links = "deny"
+# Force the crate root to keep a `//!` banner.
+missing_crate_level_docs = "warn"
+
+[lints.clippy]
+# `all` = correctness + suspicious + style + complexity + perf — the
+# default "reasonable" bucket. Not `pedantic`: the signal-to-noise
+# ratio of pedantic on a 200-line security crate is not worth the
+# `#[allow(...)]` spam.
+all    = { level = "warn", priority = -1 }
+# Flags cross-Cargo.toml issues (missing license, multiple versions
+# of the same dep in the tree, etc.).
+cargo  = { level = "warn", priority = -1 }
+
+# ─── docs.rs build configuration ─────────────────────────────────────────────
+
+[package.metadata.docs.rs]
+# Build the full documentation — all features on — so nothing is hidden.
+all-features = true
+# Surface `#[cfg]` attributes (e.g. `#[cfg(feature = "serde")]`) in the
+# generated HTML so readers can see which items require which features.
+rustdoc-args = ["--cfg", "docsrs"]
