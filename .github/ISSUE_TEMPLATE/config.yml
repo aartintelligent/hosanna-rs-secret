@@ -1,16 +1,13 @@
 # ─────────────────────────────────────────────────────────────────────────────
 #  Issue chooser configuration
 #
-#  - Disables the "Open a blank issue" escape hatch so every issue goes
-#    through one of the two structured templates.
-#  - Adds a top-level link to the private Security Advisory form so users
-#    don't file vulnerabilities as public issues (see SECURITY.md).
+#  Forces contributors through one of the structured templates by disabling
+#  the "Open a blank issue" escape hatch.
+#
+#  The "Report a security vulnerability" entry is contributed automatically
+#  by GitHub because this repository has Private Vulnerability Reporting
+#  enabled (Settings → Code security and analysis). Adding a duplicate
+#  `contact_links:` entry here would show the same link twice, so we
+#  deliberately let GitHub own that line.
 # ─────────────────────────────────────────────────────────────────────────────
 blank_issues_enabled: false
-
-contact_links:
-  - name: Security vulnerability
-    url: https://github.com/aartintelligent/hosanna-rs-secret/security/advisories/new
-    about: >
-      Report a security issue privately via GitHub Security Advisory.
-      Do NOT open a public issue for vulnerabilities — see SECURITY.md.
